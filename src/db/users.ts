@@ -1,18 +1,20 @@
 import mongoose from "mongoose";
 
 const UserSchema = new mongoose.Schema({
-    username: { type:String,required : true},
-    email: { type:String,required : true},
+    username: { type:String, required:true, message:'Kullanıcı adı alanı zorunludur'},
+    email: { type:String, required:true, message:'Email alanı zorunludur'},
     authentication : {
-     password: {type:String,required:true,select:false},
-     salt: {type:String,select:false},
-     sessionToken: {type:String,select:false}
+        password: {type:String, required:true, select:false, message:'Parola alanı zorunludur'},
+        salt: {type:String, select:false},
+        sessionToken: {type:String, select:false}
     },
+    age:{type:Number, required:true, message:'Yaş alanı zorunludur'},    
+    sex:{type:Boolean, required:true, message:'Cinsiyet alanı zorunludur'},     //true = Man, False= Woman
+    phone:{type:String, required:true, message:'Telefon numarası alanı zorunludur'}
 });
 
+
 export const UserModel = mongoose.model('User',UserSchema);
-
-
 export const getUser = () => UserModel.find();
 export const getUserByEmail = (email: string) => UserModel.findOne({email});
 export const getUserBySessionToken = (sessionToken: string) => UserModel.findOne({'authentication.sessionToken':sessionToken,});

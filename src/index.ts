@@ -21,7 +21,7 @@ app.use(bodyParser.json());
 const server = http.createServer(app);
 
 server.listen(8080, () => {
-    console.log('Server running on http://local host 8080/');
+    console.log('Server running on http://localhost:8080/');
 });
 
 const Mongo_URL = 'mongodb+srv://yunusemreayan00:xP3sCza4LpI7rkpA@cluster0.hckf2pj.mongodb.net/?retryWrites=true&w=majority'
