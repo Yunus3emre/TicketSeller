@@ -16,5 +16,35 @@ const TripSchema = new mongoose.Schema({
 
 export const TripModel = mongoose.model('Trip',TripSchema);
 export const getTrips = () => TripModel.find();
-export const getTripsFrom = () => TripModel.find({fromWhere:'fromWhere'});
 export const createTrip = (values: Record<string,any>)=> new TripModel(values).save().then((trip)=>trip.toObject());
+export const findTripsByLocation = (fromWhere: string, toWhere: string, date: Date) => {
+    return TripModel.find({ fromWhere, toWhere, date })
+      .sort({ departureTime: 1 })
+      .exec()
+      .then((trips) => {
+        const filteredTrips = trips
+          .filter((trip) =>
+            trip.seats.some((seat) => seat.status === 'empty')
+          )
+          .map((trip) => ({
+            fromWhere: trip.fromWhere,
+            toWhere: trip.toWhere,
+            date: trip.date,
+            departureTime: trip.departureTime,
+            hasEmptySeats: trip.seats.some((seat) => seat.status === 'empty'),
+          }));
+  
+        return filteredTrips;
+      });
+  };
+  export const findTripById = (id: string) => {
+    return TripModel.findById(id)
+      .exec()
+      .then((trip) => {
+        if (!trip) {
+          throw new Error('Trip not found');
+        }
+  
+        return trip.toObject();
+      });
+  };
