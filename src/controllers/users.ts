@@ -1,6 +1,7 @@
 import express from 'express';
 
 import {deleteUserById, getUser, getUserById} from '../db/users';
+import {getUserTickets} from '../db/ticket';
 
 export const getAllUsers = async (req:express.Request, res:express.Response)=>{
     try {
@@ -43,4 +44,16 @@ export const updateUser = async (req:express.Request, res:express.Response) =>{
         console.log(error);
         return res.sendStatus(400);
     }
+}
+
+export const getUserTicket = async (req:express.Request, res:express.Response)=>{
+    try {
+        const currentUserId = req.cookies['app-User'];
+        const usertickets = await getUserTickets(currentUserId);
+        return res.status(200).json(usertickets);
+    }
+    catch (error) {
+        console.log(error);
+        return res.sendStatus(400);
+    }                 
 }
