@@ -1,6 +1,6 @@
 import express from 'express';
 import { getTickets, createTicket,findTicketById} from '../db/ticket';
-import { findTripById } from '../db/trips';
+import { findTripById,updateTripSeats } from '../db/trips';
 import { getUserById } from '../db/users';
 
 
@@ -70,6 +70,7 @@ export const newTicket = async (req: express.Request, res: express.Response) => 
                     seats,
                     owner: currentUser
                 });
+                updateTripSeats(trip,seats);
                 return res.status(200).json(ticket);
             }
         }
