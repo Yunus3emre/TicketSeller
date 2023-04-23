@@ -24,3 +24,14 @@ export const getUserTickets = async (ownerId:string) => {
       throw err;
     }
   }
+  export const findTicketById = (id: string) => {
+    return TicketModel.findById(id)
+      .exec()
+      .then((ticket) => {
+        if (!ticket) {
+          throw new Error('Trip not found');
+        }
+  
+        return ticket.toObject();
+      });
+  };

@@ -1,5 +1,5 @@
 import express from 'express';
-import { getTickets, createTicket } from '../db/ticket';
+import { getTickets, createTicket,findTicketById} from '../db/ticket';
 import { findTripById } from '../db/trips';
 import { getUserById } from '../db/users';
 
@@ -16,27 +16,6 @@ export const getAllTickets = async (req: express.Request, res: express.Response)
         return res.sendStatus(400);
     }
 }
-
-// export const newTicket = async (req: express.Request, res: express.Response) =>{    
-//     try{
-//         const currentUser= req.cookies['app-User'];
-//         const { trip, seats} = req.body;
-
-//         const currentTrip = findTripById(trip);
-
-//         const ticket = await createTicket({
-//             trip,
-//             seats,
-//             owner:currentUser
-//         });
-
-//         return res.status(200).json(ticket).end();
-
-//     }catch(error){
-//         console.log(error);
-//         return res.sendStatus(400);
-//     }
-// }
 
 export const newTicket = async (req: express.Request, res: express.Response) => {
     try {
@@ -69,8 +48,60 @@ export const newTicket = async (req: express.Request, res: express.Response) => 
                 return res.status(400).json({ message: "Bu koltuk Dolu." });
             }
         }
-        return res.status(400).json({ message: "Seçilen bilet alınamadı." });
+        else if (seats.length > 1 && seats.length < 6) {
+            let availableSeats:number =0;
+            seats.forEach((seat:{seatNumber: string, status: string }) => {
+                if (currentTrip.seats) {
+                    const selectedseatnumber = parseInt(seat.seatNumber) - 1;
+
+                    if(currentTrip.seats[selectedseatnumber].status ==='empty') {
+                        availableSeats++;
+                    }else{
+                        availableSeats--;
+                    }
+                }
+                else{
+                    console.log("undefined");
+                }
+              });
+              if(availableSeats == seats.length){
+                const ticket =await createTicket({
+                    trip,
+                    seats,
+                    owner: currentUser
+                });
+                return res.status(200).json(ticket);
+            }
+        }
+        else if (seats.length >5){
+            return res.status(400).json({ message: "Aynı anda en fazla 5 adet koltuk alabilirsiniz" });
+        }
+        return res.status(400).json({ message: "Seçilen bilet alınamadı. Bütün koltukların boş olduğundan emin olunuz" });
     } catch (error) {
+        console.log(error);
+        return res.sendStatus(400);
+    }
+}
+
+export const getTicketDetails = async (req: express.Request, res: express.Response) => {
+   
+    try {
+        const { ticketId } = req.body;
+        const ticket = await findTicketById(ticketId);
+        const trip = await findTripById(ticket.trip);
+
+        const responseData = {
+            fromWhere: trip.fromWhere,
+            toWhere: trip.toWhere,
+            date: trip.date,
+            departureTime: trip.departureTime,
+            seats: ticket.seats,
+          };
+
+
+        return res.status(200).json(responseData);
+    }
+    catch (error) {
         console.log(error);
         return res.sendStatus(400);
     }
